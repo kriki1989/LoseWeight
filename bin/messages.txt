@@ -1,0 +1,7 @@
+
+MessageID= 1
+dateSubmission= 2018-04-30 16:26:41.587, 
+sender= admin, 
+receiver= kriki, 
+message= hello kriki
+

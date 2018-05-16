@@ -1,0 +1,89 @@
+package loseWeight;
+
+public class SubadminMenu {
+
+	public static void assignDeletor() {
+		User assignRoleToUser = chooseUser();
+		if (assignRoleToUser.getRole() == Role.SUBADMIN) {
+			assignRoleToUser.setRole(Role.STANDARD_USER);
+		}else {
+			assignRoleToUser.setRole(Role.SUBADMIN);
+
+		}
+	}
+
+	public static User chooseUser() {
+		User assignRoleToUser = null;
+		int id;
+		do {
+			try {
+				System.out.println("List of users with their assigned roles:");
+				for (int i=0;i<MainApplication.users.size();i++) {
+					System.out.println(MainApplication.users.get(i).toStringAdmin1());
+				}
+				System.out.println("Type userID and assign/unassign a SubAdmin:");
+				id = Integer.parseInt(MainApplication.input.nextLine());
+				for (int i=0;i<MainApplication.users.size();i++) {
+					if (MainApplication.users.get(i).getUserID() == id) {
+						assignRoleToUser = MainApplication.users.get(i);
+						return assignRoleToUser;
+					}
+				}
+				if (assignRoleToUser == null) {
+					System.out.println("This is not a valid id.");
+				}
+			} catch (Exception e) {
+				System.out.println("Incorrect id");
+				assignRoleToUser = null;
+			}
+		} while (assignRoleToUser != null);
+		return assignRoleToUser;
+	}
+	
+	public static void primaryDisplayOptions() {
+		System.out.println("\n1.Update info \n2.Messages \n3.Send progress to other users \n4.Show profile \n5.Log out \nWhat do you want to do?");
+		System.out.println("\nSubAdmin User options: \n6.Read all messages \n7.Edit message \n8.Delete Message");
+	}
+
+	public static User process(User myUser) {
+		int userChoice;
+		do {
+			primaryDisplayOptions();
+			userChoice = UserMenu.chooseMainMenuOption();
+		} while (userChoice<1 && userChoice>6);
+		switch (userChoice){
+		case 1:
+			boolean repeat = true;
+			do {
+				repeat = UserMenu.secondaryDisplayOptions_1(repeat);
+			}while (repeat);
+			break;
+		case 2:
+			boolean repeat1 = true;
+			do {
+				repeat1 = UserMenu.secondaryDisplayOptions_2(repeat1);
+			}while (repeat1);
+			break;
+		case 3:
+			Mailbox.sendProgressOthers();
+			break;
+		case 4:
+			System.out.println(MainApplication.onlineUser.getMyBMI().toString());
+			break;
+		case 5:
+			MainApplication.onlineUser = null;
+		case 6:
+			DB_AdminMenu.viewMessage();
+			break;
+		case 7:
+			AdminMenu.editMessage();
+			break;
+		case 8:
+			AdminMenu.deleteMessage();
+			break;
+		}
+		return null;
+	}
+	
+	
+}

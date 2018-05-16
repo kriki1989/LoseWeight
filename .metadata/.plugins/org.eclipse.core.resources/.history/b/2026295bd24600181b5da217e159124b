@@ -1,0 +1,92 @@
+package loseWeight;
+
+import java.sql.Connection; //must
+import java.sql.DriverManager; //must
+import java.sql.PreparedStatement; //maybe
+import java.sql.ResultSet; //must
+import java.sql.SQLException; //must
+import java.sql.Statement; //must
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.Date;
+import java.sql.Timestamp;
+
+
+public class DB_AdminMenu {
+	private static final String USERNAME = "kriki1989";
+	private static final String PASS = "1234";
+	private static final String MYSQLURL = "jdbc:mysql://localhost/loseweightdb?allowMultiQueries=true";
+
+	public static void unlockPasswords() {
+		Connection conn = null;
+		PreparedStatement stm = null;
+		try {//1
+			try { //2
+				Class.forName("com.mysql.jdbc.Driver");
+			}catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} //end try 2
+
+			conn = DriverManager.getConnection(MYSQLURL, USERNAME, PASS);
+			String proceed = "N";
+			do {
+				String findLockedUsers = "SELECT userID, username FROM user WHERE user.isLocked=1;";
+				stm = conn.prepareStatement(findLockedUsers);
+				ResultSet rs = stm.executeQuery();
+
+				if (rs.next()) {
+					rs.beforeFirst();
+					while (rs.next()) {
+						System.out.println("Locked userID:" + rs.getInt(1) +", Username: "+ rs.getString(2));
+					}
+					int typedID;
+					boolean found = false;
+					do {
+						try {
+							System.out.println("Which user would you like to unlock? Type userID: ");
+							typedID = Integer.parseInt(MainApplication.input.nextLine());
+							while (rs.next()) {
+								int ID = rs.getInt(1);
+								if (ID == typedID) {
+									found = true;
+									break;
+								}
+							}
+							break;
+						}catch (Exception e) {
+							System.out.println("This is not a valid ID");
+						}
+					}while (true);
+					System.out.println(found);
+					if (found) {
+						String unlockUser = "UPDATE user SET password='0000', isLocked=0, attempts=3 WHERE userID=" + typedID + ";";
+						stm = conn.prepareStatement(unlockUser);
+						stm.executeUpdate();
+						System.out.println("User unlocked successfully");
+						do {
+							System.out.println("Do you want to unlock another user? [Y/N]: ");
+							proceed = MainApplication.input.nextLine();
+						} while (!proceed.equals("Y") && !proceed.equals("N"));
+					}else {
+						System.out.println("User not found.");
+					}
+
+				}else {
+					System.out.println("No user to unlock.");
+				}
+			}while (proceed.equals("Y"));
+
+		} catch (SQLException ex) {
+			Logger.getLogger(DB_LoginScreen.class.getName()).log(Level.SEVERE, null, ex);
+		} finally {
+			if (conn != null) {
+				try { //3
+					conn.close();
+				}catch (SQLException e) {
+					e.printStackTrace();
+				}//end try 3
+			} //end if
+		} //end try 1
+	}
+
+}// end of class

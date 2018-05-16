@@ -1,0 +1,322 @@
+package loseWeight;
+
+import java.util.ArrayList;
+
+public class AdminMenu {
+
+//MENOY 1
+	public static void menuAdmin_display() {
+		System.out.println("1.Unlock Passwords \n2.Messages \n3.Users \n4.Log out");
+	}
+
+	public static User process(User myUser) {
+		menuAdmin_display();
+		int choice = chooseMainMenuAdminOption();
+		switch (choice) {
+		case 1:
+			DB_AdminMenu.unlockPasswords();
+			break;
+		case 2:
+			boolean repeat = true;
+			do{
+				repeat = modifyMessages(repeat);
+			}while (repeat);
+			break;
+		case 3:
+			boolean repeat1 = true;
+			do{
+				repeat1 = modifyUsers(repeat1);
+			}while (repeat1);
+			break;
+		case 4:
+			MainApplication.onlineUser = null;
+			break;
+		}
+		return null;
+	}
+
+	public static int chooseMainMenuAdminOption() {
+		int choice;
+		do {
+			try {
+				System.out.print("Choose: ");
+				choice = Integer.parseInt(MainApplication.input.nextLine());
+			} catch (Exception e) {
+				System.out.println("Invalid entry");
+				choice = 0;
+			}
+		} while (choice<1 || choice>4);
+		return choice;
+	}
+		
+//MENOY 1.2
+	public static void secondaryDisplayMenu() {
+		System.out.println("\n1.View Messages \n2.Edit Messages \n3.Delete Messages \n4.Go back");
+	}
+
+	public static boolean modifyMessages(boolean repeat) {
+		secondaryDisplayMenu();
+		int choice = chooseMainMenuAdminOption();
+		switch (choice) {
+		case 1:
+			DB_AdminMenu.viewMessage();
+			break;
+		case 2:
+			DB_AdminMenu.editMessage();
+			break;
+		case 3:
+			deleteMessage();
+			break;
+		case 4:
+			repeat = false;
+			return repeat;
+		}
+		repeat = true;
+		return repeat;
+	}
+
+	public static void deleteMessage() {
+		String editing = "N";
+		do {
+			int id;
+			boolean found = false;
+			if (Mailbox.messages.size() != 0) {
+				do {
+					try {
+						System.out.println("Type messageID to delete private message:");
+						id = Integer.parseInt(MainApplication.input.nextLine());
+						for (int i=0;i<Mailbox.messages.size();i++) {
+							if (Mailbox.messages.get(i).getMessageID() == id) {
+								Mailbox.messages.remove (Mailbox.messages.get(i));
+								do {
+									System.out.println("Do you want to delete another message? [Y/N]: ");
+									editing = MainApplication.input.nextLine();
+								} while (!editing.equals("Y") && !editing.equals("N"));
+								found=true;
+								break;
+							}
+						}
+						if (found == false) {
+							System.out.println("This is not a valid id.");
+						}
+					} catch (Exception e) {
+						System.out.println("Incorrect id");
+					}
+				} while (!found);
+			}else {
+				System.out.println("No messages to preview.");
+			}
+
+		}while (editing.equals("Y"));
+	}
+
+//MENOY 1.3 
+	public static void userDisplayMenu() {
+		System.out.println("\n1.Create User \n2.Delete User \n3.Update User \n4.Assign Roles to User \n5.Go back");
+	}
+
+	public static boolean modifyUsers(boolean repeat) {
+		userDisplayMenu();
+		int choice = chooseMainMenuAdminOption1();
+		switch (choice) {
+		case 1:
+			LoginScreen.createAccProcess();
+			break;
+		case 2:
+			deleteUser();
+			break;
+		case 3:
+			boolean repeat1 = true;
+			do {
+				repeat1 = updateUser(repeat1);
+			}while (repeat1);
+			break;
+		case 4:
+			boolean repeat2 = true;
+			do {
+				repeat2 = assignRoles(repeat2);
+			}while (repeat2);
+			break;
+		case 5:
+			repeat = false;
+			return repeat;
+		}
+		repeat = true;
+		return repeat;
+	}
+
+	public static int chooseMainMenuAdminOption1() {
+		int choice;
+		do {
+			try {
+				System.out.print("Choose: ");
+				choice = Integer.parseInt(MainApplication.input.nextLine());
+			} catch (Exception e) {
+				System.out.println("Invalid entry");
+				choice = 0;
+			}
+		} while (choice<1 || choice>5);
+		return choice;
+	}	
+
+	public static void deleteUser() {
+		String editing = "N";
+		do {
+			int id;
+			boolean found = false;
+			do {
+				try {
+					for (int i=0;i<MainApplication.users.size();i++) {
+						System.out.println(MainApplication.users.get(i).toString());
+					}
+					System.out.println("Type userID to delete a user:");
+					id = Integer.parseInt(MainApplication.input.nextLine());
+					for (int i=0;i<MainApplication.users.size();i++) {
+						if (MainApplication.users.get(i).getUserID() == id) {
+							MainApplication.users.remove (MainApplication.users.get(i));
+							System.out.println("User deleted successfully.");
+							do {
+								System.out.println("Do you want to delete another user? [Y/N]: ");
+								editing = MainApplication.input.nextLine();
+							} while (!editing.equals("Y") && !editing.equals("N"));
+							found=true;
+							break;
+						}
+					} 
+				}catch (Exception e) {
+					System.out.println("Incorrect id");
+				}
+			} while (!found);
+		}while (editing.equals("Y"));
+	}
+
+//MENOY 1.3.3
+	public static void updateMenu() {
+		System.out.println("What do you want to update? \n1.Username \n2.Password \n3.Go back");
+	}
+
+	public static boolean updateUser(boolean repeat2) {
+		User update_User = chooseUser();
+		updateMenu();
+		int choice = chooseMainMenuAdminOption2();
+		switch (choice) {
+		case 1:
+			updateUsername(update_User);
+			break;
+		case 2:
+			updatePassword(update_User);
+			break;
+		case 3:
+			repeat2 = false;
+			return repeat2;
+		}
+		repeat2 = true;
+		return repeat2;		
+	}
+
+	public static User chooseUser() {
+		User updateUser = null;
+		int id;
+		do {
+			try {
+				for (int i=0;i<MainApplication.users.size();i++) {
+					System.out.println(MainApplication.users.get(i).toStringAdmin());
+				}
+				System.out.println("Type userID you would like to update stats:");
+				id = Integer.parseInt(MainApplication.input.nextLine());
+				for (int i=0;i<MainApplication.users.size();i++) {
+					if (MainApplication.users.get(i).getUserID() == id) {
+						updateUser = MainApplication.users.get(i);
+						return updateUser;
+					}
+				}
+				if (updateUser == null) {
+					System.out.println("This is not a valid id.");
+				}
+			} catch (Exception e) {
+				System.out.println("Incorrect id");
+				updateUser = null;
+			}
+		} while (updateUser != null);
+		return updateUser;
+	}
+
+	public static int chooseMainMenuAdminOption2() {
+		int choice;
+		do {
+			try {
+				System.out.print("Choose: ");
+				choice = Integer.parseInt(MainApplication.input.nextLine());
+			} catch (Exception e) {
+				System.out.println("Invalid entry");
+				choice = 0;
+			}
+		} while (choice<1 || choice>2);
+		return choice;
+	}
+
+	public static User updateUsername(User user) {
+		String username;
+		do {
+			do {
+				System.out.println("Username: ");
+				username = MainApplication.input.nextLine();
+			}while(!username.matches("^[a-z,A-Z,0-9,.'-]+$"));
+		}while (LoginScreen.findUsernameInList(username));
+		user.setUsername(username);
+		return user;
+	}
+
+	public static User updatePassword(User user) {
+		String password;
+		do {
+			System.out.print("Password: ");
+			password = MainApplication.input.nextLine();
+		}while (!password.matches("^[a-z,A-Z,0-9,.'-]+$"));
+		user.setPassword(password);
+		return user;
+	}
+
+//MENOY 1.3.4
+	public static void displayRoles() {
+		System.out.println("Your roles are: \n1.Reader \n2.Editor \n3.Deletor \n4.Go back");
+	}
+
+	public static boolean assignRoles(boolean repeat) {
+		displayRoles();
+		int choice = chooseMainMenuAdminOption3();
+		switch (choice) {
+		case 1:
+			ReaderMenu.assignReader();
+			break;
+		case 2:
+			EditorMenu.assignEditor();
+			break;
+		case 3:
+			SubadminMenu.assignDeletor();
+			break;
+		case 4:
+			repeat = false;
+			return repeat;
+		}
+		repeat = true;
+		return repeat;	
+	}
+
+	public static int chooseMainMenuAdminOption3() {
+		int choice;
+		do {
+			try {
+				System.out.print("Choose: ");
+				choice = Integer.parseInt(MainApplication.input.nextLine());
+			} catch (Exception e) {
+				System.out.println("Invalid entry");
+				choice = 0;
+			}
+		} while (choice<1 || choice>4);
+		return choice;
+	}
+
+
+
+}
